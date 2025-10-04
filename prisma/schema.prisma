@@ -1,0 +1,83 @@
+// Prisma setup
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"      // ✅ using SQLite (Change later to Postgre)
+  url      = "file:./dev.db"
+}
+
+// =============================
+// USER MODEL
+// =============================
+model User {
+  id                Int       @id @default(autoincrement())
+  firstName         String
+  lastName          String
+  username          String
+  email             String    @unique
+  password          String
+  phone             String?
+  mainBalance       Float     @default(0)
+  investmentBalance Float     @default(0)
+  totalEarn         Float     @default(0)
+  totalDeposit      Float     @default(0)
+  roi               Float     @default(0)
+  redeemedRoi       Float     @default(0)
+  speedInvest       Float     @default(0)
+  completed         Float     @default(0)
+  createdAt         DateTime  @default(now())
+
+  // Relations
+  deposits          Deposit[]
+  investments       Investment[]
+  transactions      Transaction[]
+}
+
+// =============================
+// DEPOSIT MODEL
+// =============================
+model Deposit {
+  id         Int       @id @default(autoincrement())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     Int
+  amount     Float
+  currency   String
+  address    String
+  status     String    @default("Pending") // Pending | Completed | Failed
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+// =============================
+// INVESTMENT MODEL
+// =============================
+model Investment {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  planName    String
+  planId      Int
+  roi         Float
+  duration    String
+  amount      Float
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  status      String    @default("Active") // Active | Completed
+  createdAt   DateTime  @default(now())
+}
+
+// =============================
+//  TRANSACTION MODEL
+// =============================
+model Transaction {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  type        String                // deposit | withdraw | invest | roi
+  amount      Float
+  description String?
+  status      String    @default("Success")
+  createdAt   DateTime  @default(now())
+}
