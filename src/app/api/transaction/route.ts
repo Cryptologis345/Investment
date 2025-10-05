@@ -5,7 +5,8 @@ import prisma from "@/lib/prisma";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId"); // optional filter
+    const userIdParam = searchParams.get("userId"); // optional filter
+    const userId = userIdParam ? Number(userIdParam) : undefined; // ✅ Convert to number
 
     let transactions;
 
@@ -44,9 +45,10 @@ export async function POST(req: Request) {
       );
     }
 
+    // ✅ Convert userId to number before inserting
     const transaction = await prisma.transaction.create({
       data: {
-        userId,
+        userId: Number(userId),
         amount,
         paymentMethod,
         status: status || "Pending",
@@ -66,4 +68,5 @@ export async function POST(req: Request) {
     );
   }
 }
+
 export const dynamic = "force-dynamic";
