@@ -9,10 +9,11 @@ export async function POST(req: Request) {
     // 1️⃣ Create pending transaction
     const transaction = await prisma.transaction.create({
       data: {
-        userId,
+        user: { connect: { id: userId } }, // ✅ Connect to user
         amount,
         paymentMethod,
         transactionRef,
+        type: "Deposit", // ✅ Required field (adjust if you use "Withdrawal" or others)
         status: "Pending",
         createdAt: new Date(),
       },
@@ -40,7 +41,6 @@ export async function POST(req: Request) {
       `,
     };
 
-    // Initialize and send via EmailJS
     emailjs.init("JmQjPLQLPRNYM5Vgp");
 
     await emailjs.send(
@@ -62,4 +62,5 @@ export async function POST(req: Request) {
     );
   }
 }
+
 export const dynamic = "force-dynamic";
