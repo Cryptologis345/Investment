@@ -47,15 +47,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const newWithdrawal = await prisma.withdrawal.create({
-      data: {
-        userId: data.userId,
-        amount: data.amount,
-        status: "Pending",
-        paymentMethod: data.paymentMethod || null,
-        transactionRef: data.transactionRef || null,
-      },
-    });
 
     return NextResponse.json(newWithdrawal, { status: 201 });
   } catch (error) {
