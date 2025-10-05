@@ -22,14 +22,15 @@ export default function SigninPage() {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data: any) => {
-    const success = login(data.email.toLowerCase(), data.password);
-    if (!success) {
-      alert("Invalid email or password");
-      return;
-    }
-    router.push("/dashboard");
-  };
+ const onSubmit = async (data: any) => {
+   const success = await login(data.email.toLowerCase(), data.password);
+   if (!success) {
+     alert("Invalid email or password");
+     return;
+   }
+   router.push("/dashboard");
+ };
+
 
   return (
     <form
