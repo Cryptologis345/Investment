@@ -1,6 +1,12 @@
-// src/app/api/withdrawalHistory/route.ts
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+
+type WithdrawalRequest = {
+  userId: number;
+  amount: number;
+  paymentMethod?: string;
+  transactionRef?: string;
+};
 
 // GET all withdrawals
 export async function GET(req: Request) {
@@ -32,9 +38,8 @@ export async function GET(req: Request) {
 // POST a new withdrawal
 export async function POST(req: Request) {
   try {
-    const data = await req.json();
+    const data: WithdrawalRequest = await req.json();
 
-    // Validate required fields
     if (!data.userId || !data.amount) {
       return NextResponse.json(
         { error: "Missing required fields: userId or amount" },
@@ -46,7 +51,9 @@ export async function POST(req: Request) {
       data: {
         userId: data.userId,
         amount: data.amount,
-        status: "Pending", // default
+        status: "Pending",
+        paymentMethod: data.paymentMethod || null,
+        transactionRef: data.transactionRef || null,
       },
     });
 

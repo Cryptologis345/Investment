@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// 📘 GET — fetch withdrawals (optionally by user)
+type WithdrawalRequest = {
+  userId: number;
+  amount: number;
+  status?: string;
+};
+
+// GET — fetch withdrawals (optionally by user)
 export const GET = async (req: Request) => {
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
 
     const withdrawals = await prisma.withdrawal.findMany({
-      where: userId ? { userId } : undefined,
+      where: userId ? { userId: Number(userId) } : undefined,
       orderBy: { createdAt: "desc" },
     });
 
@@ -22,10 +28,10 @@ export const GET = async (req: Request) => {
   }
 };
 
-// 📘 POST — create a new withdrawal
+// POST — create a new withdrawal
 export const POST = async (req: Request) => {
   try {
-    const { userId, amount, status } = await req.json();
+    const { userId, amount, status }: WithdrawalRequest = await req.json();
 
     if (!userId || !amount) {
       return NextResponse.json(
@@ -52,5 +58,4 @@ export const POST = async (req: Request) => {
   }
 };
 
-// ✅ Ensures Cloudflare treats it as an ES module
 export const dynamic = "force-dynamic";
