@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 // ✅ Helper: default dashboard data
+
+export const runtime = 'edge';
 function getDefaultStats() {
   return {
     mainBalance: 0,

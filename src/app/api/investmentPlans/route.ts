@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 // In-memory fallback if no DB yet
+export const runtime = 'edge';
 let investments: Record<string, any[]> = (global as any).investments || {};
 (global as any).investments = investments;
 

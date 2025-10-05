@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma"; // Adjust if your prisma client is stored elsewhere
 
 // POST /api/auth/signin
-export async function POST(req: Request) {
+
+export const runtime = 'edge';
+export async function POST(req: Request)
+{
   try {
     const { email, password } = await req.json();
 

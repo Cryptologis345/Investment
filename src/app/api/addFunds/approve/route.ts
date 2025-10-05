@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import emailjs from "emailjs-com";
 
-export async function POST(req: Request) {
+export const runtime = 'edge';
+
+export async function POST(req: Request)
+{
   try {
     const { transactionId, newStatus } = await req.json();
 

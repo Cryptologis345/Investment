@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma"; // adjust path if needed
 
 // POST /api/auth/signup
-export async function POST(req: Request) {
+
+export const runtime = 'edge';
+export async function POST(req: Request)
+{
   try {
     const data = await req.json();
     const {
