@@ -11,6 +11,7 @@ export async function POST(req: Request) {
       data: {
         userId,
         amount,
+        type: "deposit",
         paymentMethod,
         transactionRef,
         status: "Pending",
