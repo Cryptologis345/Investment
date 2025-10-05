@@ -77,6 +77,8 @@ model Transaction {
   userId      Int
   type        String                // deposit | withdraw | invest | roi
   amount      Float
+   paymentMethod   String?               // ✅ Added
+  transactionRef  String? 
   description String?
   status      String    @default("Success")
   createdAt   DateTime  @default(now())
