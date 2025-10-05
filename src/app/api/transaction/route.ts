@@ -52,6 +52,7 @@ export async function POST(req: Request) {
         amount,
         paymentMethod,
         status: status || "Pending",
+        type,
         createdAt: new Date(),
       },
     });

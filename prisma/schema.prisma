@@ -77,7 +77,7 @@ model Transaction {
   id          Int       @id @default(autoincrement())
   user        User      @relation(fields: [userId], references: [id])
   userId      Int
-  type        String                // deposit | withdraw | invest | roi
+  type        String?                // deposit | withdraw | invest | roi
   amount      Float
   description String?
   status      String    @default("Success")
