@@ -33,7 +33,7 @@ const cardData: HomeCardProps[] = [
       { label: "Fast and Secure transactions", icon: <FaCheck /> },
       { label: "256-bit secure encryption", icon: <FaCheck /> },
     ],
-    button: { label: "Get Started", icon: <FaCheck />, onClick: () => {} },
+    button: { label: "Get Started", icon: <FaCheck /> },
   },
   {
     id: 2,
