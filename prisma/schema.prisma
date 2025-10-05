@@ -23,6 +23,7 @@ model User {
   investmentBalance Float     @default(0)
   totalEarn         Float     @default(0)
   totalDeposit      Float     @default(0)
+  totalWithdraw   Float     @default(0)
   roi               Float     @default(0)
   redeemedRoi       Float     @default(0)
   speedInvest       Float     @default(0)
@@ -33,6 +34,7 @@ model User {
   deposits          Deposit[]
   investments       Investment[]
   transactions      Transaction[]
+   withdrawals       Withdrawal[]   
 }
 
 // =============================
@@ -77,9 +79,20 @@ model Transaction {
   userId      Int
   type        String                // deposit | withdraw | invest | roi
   amount      Float
-   paymentMethod   String?               // ✅ Added
-  transactionRef  String? 
   description String?
   status      String    @default("Success")
   createdAt   DateTime  @default(now())
+}
+
+// =============================
+// WITHDRAWAL MODEL
+// =============================
+model Withdrawal {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  amount    Float
+  status    String   @default("Pending") // Pending | Completed | Failed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
