@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     // Create deposit record
     const deposit = await prisma.deposit.create({
       data: {
-        userEmail: user,
+        userId: user.id,
         amount: Number(amount),
         currency,
         address,
