@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"      // ✅ using SQLite (Change later to Postgre)
+  provider = "sqlite"      // ✅ using SQLite
   url      = "file:./dev.db"
 }
 
@@ -34,7 +34,7 @@ model User {
   deposits          Deposit[]
   investments       Investment[]
   transactions      Transaction[]
-   withdrawals       Withdrawal[]   
+   withdrawals       Withdrawal[]
 }
 
 // =============================
