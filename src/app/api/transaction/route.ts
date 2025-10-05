@@ -36,9 +36,9 @@ export async function GET(req: Request) {
 // 📘 POST — optionally allow adding mock or manual transactions (optional)
 export async function POST(req: Request) {
   try {
-    const { userId, amount, paymentMethod, status } = await req.json();
+    const { userId, amount, paymentMethod, status, type } = await req.json();
 
-    if (!userId || !amount || !paymentMethod) {
+    if (userId || !amount || !paymentMethod || !type) {
       return NextResponse.json(
         { success: false, message: "Missing required fields" },
         { status: 400 }
