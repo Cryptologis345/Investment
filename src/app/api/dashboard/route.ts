@@ -117,8 +117,6 @@ export async function POST(req: Request) {
         data: {
           userId: userRecord.id,
           amount: Number(amount),
-          address,
-          currency,
           status: "Pending",
         },
       });
