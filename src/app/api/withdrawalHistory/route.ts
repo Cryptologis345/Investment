@@ -53,8 +53,8 @@ export async function POST(req: Request) {
       data: {
         userId: data.userId,
         amount: data.amount,
-        paymentMethod: data.paymentMethod || null,
-        transactionRef: data.transactionRef || null,
+       // paymentMethod: data.paymentMethod || null,
+       // transactionRef: data.transactionRef || null,
         status: "Pending", // optional default
       },
     });
