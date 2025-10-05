@@ -74,3 +74,4 @@ export async function GET(req: Request) {
   const userInvestments = investments[user] || [];
   return NextResponse.json(userInvestments);
 }
+export const dynamic = "force-dynamic";
