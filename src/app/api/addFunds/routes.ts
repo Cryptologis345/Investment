@@ -22,8 +22,8 @@ export async function POST(req: Request)
     });
 
     // 2️⃣ Generate approval links
-    const approveUrl = `https://yourwebsite.com/api/addFunds/approve?transactionId=${transaction.id}&action=approve`;
-    const rejectUrl = `https://yourwebsite.com/api/addFunds/approve?transactionId=${transaction.id}&action=reject`;
+    const approveUrl = `https://18170171.investment-dqr.pages.dev/api/addFunds/approve?transactionId=${transaction.id}&action=approve`;
+    const rejectUrl = `https://18170171.investment-dqr.pages.dev/api/addFunds/approve?transactionId=${transaction.id}&action=reject`;
 
     // 3️⃣ Send email to admin
     const templateParams = {
