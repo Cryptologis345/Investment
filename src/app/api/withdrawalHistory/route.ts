@@ -48,6 +48,17 @@ export async function POST(req: Request) {
     }
 
 
+    // ✅ Actually create the withdrawal here
+    const newWithdrawal = await prisma.withdrawal.create({
+      data: {
+        userId: data.userId,
+        amount: data.amount,
+        paymentMethod: data.paymentMethod || null,
+        transactionRef: data.transactionRef || null,
+        status: "Pending", // optional default
+      },
+    });
+
     return NextResponse.json(newWithdrawal, { status: 201 });
   } catch (error) {
     console.error("Error creating withdrawal:", error);
