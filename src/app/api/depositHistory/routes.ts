@@ -2,28 +2,23 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// GET: Retrieve deposit history for a user
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const user = searchParams.get("user");
+    const userEmail = searchParams.get("user");
+    if (!userEmail) return NextResponse.json([], { status: 200 });
 
-    if (!user) {
-      return NextResponse.json({ error: "Missing user" }, { status: 400 });
-    }
+    const user = await prisma.user.findUnique({ where: { email: userEmail } });
+    if (!user) return NextResponse.json([], { status: 200 });
 
-    // Fetch deposits linked to user
-    const depositHistory = await prisma.deposit.findMany({
-      where: { userEmail: user },
+    const deposits = await prisma.deposit.findMany({
+      where: { userId: user.id },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(depositHistory);
-  } catch (error) {
-    console.error("Error fetching deposit history:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch deposit history" },
-      { status: 500 }
-    );
+    return NextResponse.json(deposits);
+  } catch (err) {
+    console.error("GET /depositHistory error:", err);
+    return NextResponse.json([], { status: 500 });
   }
 }

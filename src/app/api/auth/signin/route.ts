@@ -29,7 +29,6 @@ export async function POST(req: Request) {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
         mainBalance: user.mainBalance,
         totalDeposit: user.totalDeposit,
         totalWithdraw: user.totalWithdraw,

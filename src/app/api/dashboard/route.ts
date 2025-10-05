@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// Helper: default dashboard object
+// ✅ Helper: default dashboard data
 function getDefaultStats() {
   return {
     mainBalance: 0,
@@ -24,43 +24,37 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const userEmail = searchParams.get("user");
 
-    if (!userEmail) {
+    if (!userEmail)
       return NextResponse.json({ error: "User email required" }, { status: 400 });
-    }
 
-    // Find the user
+    // ✅ Find the user (no include: dashboards)
     const user = await prisma.user.findUnique({
       where: { email: userEmail },
-      include: {
-        dashboards: true,
-      },
     });
 
     if (!user) return NextResponse.json(getDefaultStats());
 
-    const dashboard = user.dashboards[0];
-
-    // Fetch deposits
+    // ✅ Fetch deposits
     const deposits = await prisma.deposit.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
     });
 
     const pendingDeposits = deposits.filter((d) => d.status === "Pending");
-    const depositHistory = deposits;
 
+    // ✅ Build response using user fields
     const result = {
-      mainBalance: dashboard?.mainBalance ?? 0,
-      interestBalance: dashboard?.interestBalance ?? 0,
-      totalDeposit: dashboard?.totalDeposit ?? 0,
-      totalEarn: dashboard?.totalEarn ?? 0,
+      mainBalance: user.mainBalance,
+      interestBalance: user.investmentBalance,
+      totalDeposit: user.totalDeposit,
+      totalEarn: user.totalEarn,
       stats: {
-        investCompleted: dashboard?.investCompleted ?? 0,
-        roiSpeed: dashboard?.roiSpeed ?? 0,
-        roiRedeemed: dashboard?.roiRedeemed ?? 0,
+        investCompleted: user.completed,
+        roiSpeed: user.speedInvest,
+        roiRedeemed: user.redeemedRoi,
       },
       pendingDeposits,
-      depositHistory,
+      depositHistory: deposits,
     };
 
     return NextResponse.json(result);
@@ -70,85 +64,81 @@ export async function GET(req: Request) {
   }
 }
 
-// ✅ POST: Add deposit or withdrawal
+// ✅ POST: Handle deposits & withdrawals
 export async function POST(req: Request) {
   try {
     const { user, amount, address, currency, type } = await req.json();
 
-    if (!user) return NextResponse.json({ error: "No user provided" }, { status: 400 });
+    if (!user)
+      return NextResponse.json({ error: "No user provided" }, { status: 400 });
     if (!amount || amount <= 0)
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
 
     const userRecord = await prisma.user.upsert({
       where: { email: user },
       update: {},
-      create: { email: user },
+      create: { email: user, firstName: "", lastName: "", username: user.split("@")[0] || user, password: "" },
     });
-
-    let dashboard = await prisma.dashboard.findFirst({
-      where: { userId: userRecord.id },
-    });
-
-    if (!dashboard) {
-      dashboard = await prisma.dashboard.create({
-        data: { userId: userRecord.id },
-      });
-    }
 
     if (type === "deposit") {
       const deposit = await prisma.deposit.create({
         data: {
           userId: userRecord.id,
-          amount,
+          amount: Number(amount),
           address,
           currency,
           status: "Pending",
         },
       });
 
-      // Simulate auto-confirm after 20s
-      setTimeout(async () => {
-        await prisma.deposit.update({
-          where: { id: deposit.id },
-          data: { status: "Completed" },
-        });
+      // create transaction record referencing deposit
+      await prisma.transaction.create({
+        data: {
+          userId: userRecord.id,
+          type: "deposit",
+          amount: Number(amount),
+          description: `deposit:${deposit.id}`,
+          status: "Pending",
+        },
+      });
 
-        await prisma.dashboard.update({
-          where: { id: dashboard.id },
-          data: {
-            mainBalance: dashboard.mainBalance + amount,
-            totalDeposit: dashboard.totalDeposit + amount,
-            totalEarn: dashboard.totalEarn + amount * 0.1,
-            interestBalance: dashboard.interestBalance + amount * 0.05,
-            investCompleted: dashboard.investCompleted + 1,
-            roiRedeemed: dashboard.roiRedeemed + amount * 0.05,
-            roiSpeed: dashboard.roiSpeed + amount * 0.02,
-          },
-        });
-      }, 20000);
-
+      // DO NOT auto-approve here — admin must approve via email link
       return NextResponse.json({ success: true, deposit });
     }
 
     if (type === "withdraw") {
-      if (dashboard.mainBalance < amount) {
+      // check balance
+      if (userRecord.mainBalance < Number(amount)) {
         return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
       }
 
+      // create withdrawal record in withdrawal table OR use Deposit model? (you have withdrawal model earlier)
       const withdrawal = await prisma.withdrawal.create({
         data: {
           userId: userRecord.id,
-          amount,
+          amount: Number(amount),
           address,
           currency,
           status: "Pending",
         },
       });
 
-      await prisma.dashboard.update({
-        where: { id: dashboard.id },
+      // create transaction entry
+      await prisma.transaction.create({
         data: {
-          mainBalance: dashboard.mainBalance - amount,
+          userId: userRecord.id,
+          type: "withdraw",
+          amount: Number(amount),
+          description: `withdrawal:${withdrawal.id}`,
+          status: "Pending",
+        },
+      });
+
+      // deduct from user's balance immediately if that's desired
+      await prisma.user.update({
+        where: { id: userRecord.id },
+        data: {
+          mainBalance: { decrement: Number(amount) },
         },
       });
 
