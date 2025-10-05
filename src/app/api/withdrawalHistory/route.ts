@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-// ✅ GET — Fetch withdrawal history (all or by user)
+// ✅ Handle GET requests (fetch withdrawal history)
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -12,12 +12,9 @@ export async function GET(req: Request) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(
-      { success: true, withdrawals },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true, withdrawals });
   } catch (error) {
-    console.error("❌ Withdrawal history fetch error:", error);
+    console.error("❌ Error fetching withdrawals:", error);
     return NextResponse.json(
       { success: false, message: "Failed to fetch withdrawal history" },
       { status: 500 }
@@ -25,7 +22,7 @@ export async function GET(req: Request) {
   }
 }
 
-// ✅ POST — Add a new withdrawal record (optional)
+// ✅ Handle POST requests (add a new withdrawal)
 export async function POST(req: Request) {
   try {
     const { userId, amount, method, status } = await req.json();
@@ -40,25 +37,18 @@ export async function POST(req: Request) {
     const withdrawal = await prisma.withdrawal.create({
       data: {
         userId,
-        amount,
+        amount: parseFloat(amount),
         method,
         status: status || "Pending",
-        createdAt: new Date(),
       },
     });
 
-    return NextResponse.json(
-      { success: true, withdrawal },
-      { status: 201 }
-    );
+    return NextResponse.json({ success: true, withdrawal });
   } catch (error) {
-    console.error("❌ Withdrawal creation error:", error);
+    console.error("❌ Error creating withdrawal:", error);
     return NextResponse.json(
       { success: false, message: "Failed to create withdrawal" },
       { status: 500 }
     );
   }
 }
-
-
-export const dynamic = "force-dynamic";
